@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+
+  "name": "Tipster",
+  "description": "Share stuff with friends.",
+  "version": "0.0.0.1",
+  "key": "8c3ffac7f74ea7ae78edd1c2d25c38da716188e30ee7188c17a8b26104103c29",
+
+  "icons": { "16": "icon16.png",
+             "48": "icon48.png",
+             "128": "icon128.png" },
+
+  "permissions": [ 
+    "identity",
+    "http://localhost:3000/*"
+  ],
+  "oauth2": {
+    "client_id": "70106b1be6ce21cdfd9f36a481a613792f89cf76b087baf48f0be2487fa3603e",
+    "scopes": ["public"]
+  },
+  "background": {
+    "page": "background.html"
+  },
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  }
+}
