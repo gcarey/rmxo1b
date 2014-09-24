@@ -1,6 +1,6 @@
 'use strict';
 
-var googlePlusUserLoader = (function() {
+var userLoader = (function() {
 
   var STATE_START=1;
   var STATE_ACQUIRING_AUTHTOKEN=2;
@@ -8,7 +8,7 @@ var googlePlusUserLoader = (function() {
 
   var state = STATE_START;
 
-  var signin_button, friends_button, friend_list_div;
+  var signin_button, friends_button, friend_list_div, access_token;
 
  function disableButton(button) {
     button.setAttribute('disabled', 'disabled');
@@ -38,14 +38,14 @@ var googlePlusUserLoader = (function() {
 
   // @corecode_begin getProtectedData
 
-  function xhrForFriends(method, url, callback) {
-    requestStart();
-
+  function xhrWithAuth(method, url, callback) {
     var retry = true;
+    requestStart();
 
     function requestStart() {
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'http://localhost:3000/api/friends');
+      xhr.open(method, url);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
       xhr.onload = requestComplete;
       xhr.send();
     }
@@ -64,7 +64,7 @@ var googlePlusUserLoader = (function() {
 
 
   function getFriends() {
-    xhrForFriends('GET',
+    xhrWithAuth('GET',
                   'http://localhost:3000/api/friends',
                   onFriendsFetched);
   }
@@ -74,9 +74,18 @@ var googlePlusUserLoader = (function() {
     if (!error && status == 200) {
       changeState(STATE_AUTHTOKEN_ACQUIRED);
       var friend_list = JSON.parse(response);
-      friend_list_div.innerHTML = "Win";
+      listFriends()
+      console.dir(friend_list);
     } else {
       friend_list_div.innerHTML = "Fail";
+    }
+
+    function listFriends() {
+      for( var i = 0; i < friend_list.friends.length; i++ ){
+        var element = document.createElement("div");
+        element.appendChild(document.createTextNode(friend_list.friends[i].firstName));
+        document.getElementById('friend_list').appendChild(element);
+      };
     }
   }
 
@@ -99,23 +108,19 @@ var googlePlusUserLoader = (function() {
   function interactiveSignIn() {
     changeState(STATE_ACQUIRING_AUTHTOKEN);
 
-    // @corecode_begin getAuthToken
-    // @description This is the normal flow for authentication/authorization
-    // on Google properties. You need to add the oauth2 client_id and scopes
-    // to the app manifest. The interactive param indicates if a new window
-    // will be opened when the user is not yet authenticated or not.
-    // @see http://developer.chrome.com/apps/app_identity.html
-    // @see http://developer.chrome.com/apps/identity.html#method-getAuthToken
     chrome.identity.launchWebAuthFlow(
-      { 'url': 'http://localhost:3000/oauth/authorize?\
-response_type=token&client_id=70106b1be6ce21cdfd9f36a481a613792f89cf76b087baf48f0be2487fa3603e&redirect_uri=https://chjcklfhnjjooakmhbjaffpfoaddalje.chromiumapp.org/oce', 'interactive': true }, function(token) {
+      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=70106b1be6ce21cdfd9f36a481a613792f89cf76b087baf48f0be2487fa3603e&redirect_uri=https://chjcklfhnjjooakmhbjaffpfoaddalje.chromiumapp.org/oce', 'interactive': true }, 
+      function(redirect) {
         if (chrome.runtime.lastError) {
           changeState(STATE_START);
         } else {
           changeState(STATE_AUTHTOKEN_ACQUIRED);
         }
-    });
-    // @corecode_end getAuthToken
+
+        var token = redirect.split('access_token=')[1].split('&token_type')[0];
+        access_token = token;
+      }
+    );
   }
 
 
@@ -135,4 +140,4 @@ response_type=token&client_id=70106b1be6ce21cdfd9f36a481a613792f89cf76b087baf48f
 
 })();
 
-window.onload = googlePlusUserLoader.onload;
+window.onload = userLoader.onload;
