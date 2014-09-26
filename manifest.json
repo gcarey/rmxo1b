@@ -4,18 +4,18 @@
   "name": "Tipster",
   "description": "Share stuff with friends.",
   "version": "0.0.0.1",
-  "key": "8c3ffac7f74ea7ae78edd1c2d25c38da716188e30ee7188c17a8b26104103c29",
+  "key": "ac0f19375674cd8a937e81ca6ed55e1f21055c8da299b8b85d63e4ad646b53ab",
 
-  "icons": { "16": "icon16.png",
-             "48": "icon48.png",
-             "128": "icon128.png" },
+  "icons": { "16": "img/icon16.png",
+             "48": "img/icon48.png",
+             "128": "img/icon128.png" },
 
   "permissions": [ 
     "identity",
     "http://localhost:3000/*"
   ],
   "oauth2": {
-    "client_id": "70106b1be6ce21cdfd9f36a481a613792f89cf76b087baf48f0be2487fa3603e",
+    "client_id": "1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031",
     "scopes": ["public"]
   },
   "background": {
