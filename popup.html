@@ -2,25 +2,16 @@
 <html>
   <head>
     <title>Getting Started Extension's Popup</title>
-    <style>
-      body {
-        min-width: 357px;
-        overflow-x: hidden;
-      }
-    </style>
-
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: http://developer.chrome.com/extensions/contentSecurityPolicy.html
-     -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
     <script src="jquery-1.11.1.min.js"></script>
+    <script src="spin.min.js"></script>
     <script src="identity.js"></script>
     <script src="popup.js"></script>
   </head>
   <body>
-      <h2>Tipster</h2>
+      <div id="menubar"><img class="logo" src="img/logo.png" alt="Tipster" ></div>
+      <p>Share this page with friends:</p>
       <div id="friend_list"></div>
   </body>
 </html>

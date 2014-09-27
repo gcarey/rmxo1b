@@ -1,0 +1,44 @@
+body {
+  min-width: 400px;
+  min-height: 200px;
+  overflow-x: hidden;
+  background-color: #fbfbfb;
+  margin: 60px 15px 15px;
+}
+
+p {
+	font-family: 'Montserrat', sans-serif;
+	font-size: 13px;
+	text-align: center;
+}
+
+#menubar {
+	position: absolute;
+	top:0;
+	left: 0;
+	right: 0;
+	height: 40px;
+	background-color: white;
+	box-shadow: 0px 1px 1px #bbb;
+}
+
+#menubar .logo {
+	margin: 7px 10px;
+}
+
+#menubar .avatar {
+	position: absolute;
+	top: 6px;
+	right: 10px;
+	border-radius: 3px;
+}
+
+#friend_list {
+	width: 370px;
+}
+
+#friend_list img {
+	margin:0 8px 8px 0;
+	border: 3px solid white;
+	border-radius: 5px;
+}
