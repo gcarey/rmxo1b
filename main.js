@@ -1,8 +1,13 @@
 'use strict';
-var user_info
+
+// Shared functions
+
+var userInfo, accessToken, userID, siteUrl;
+
+// Authenticate and get user info
 
 var userLoader = (function() {
-  var access_token, spinner;
+  var spinner;
 
   function interactiveSignIn(callback) {
     chrome.identity.launchWebAuthFlow(
@@ -12,12 +17,14 @@ var userLoader = (function() {
 
         } else {
           var token = redirect.split('access_token=')[1].split('&token_type')[0];
-          access_token = token;
+          accessToken = token;
           callback();
         }
       }
     );
   }
+
+
 
   function xhrWithAuth(method, url, callback) {
     var retry = true;
@@ -26,7 +33,7 @@ var userLoader = (function() {
     function requestStart() {
       var xhr = new XMLHttpRequest();
       xhr.open(method, url);
-      xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+      xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
       xhr.onload = requestComplete;
       xhr.send();
     }
@@ -34,8 +41,8 @@ var userLoader = (function() {
     function requestComplete() {
       if (this.status == 401 && retry) {
         retry = false;
-        chrome.identity.removeCachedAuthToken({ token: access_token },
-                                              getToken);
+        chrome.identity.removeCachedAuthToken({ token: accessToken },
+                                              interactiveSignIn);
       } else {
         callback(null, this.status, this.response);
       }
@@ -46,14 +53,15 @@ var userLoader = (function() {
 
   function getInfo() {
     xhrWithAuth('GET',
-                  'http://localhost:3000/api/friends',
-                  onInfoFetched);
+                'http://localhost:3000/api/friends',
+                onInfoFetched);
   }
 
 
   function onInfoFetched(error, status, response) {
     if (!error && status == 200) {
-      user_info = JSON.parse(response);
+      userInfo = JSON.parse(response);
+      userID = userInfo.uID
       // console.dir(response)
       showUser();
       listFriends();
@@ -64,20 +72,19 @@ var userLoader = (function() {
     }
 
     function showUser() {
-      $('#menubar').append('<img class="avatar" src="http://localhost:3000/system/users/avatars/000/000/' + pad (user_info.uId, 3) + '/thumb/' + user_info.uAvatar + '" width="27" height="27" alt="' + user_info.uName + '" title="' + user_info.uname + '" />' );
+      $('#menubar').append('<img class="avatar" src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
     }
 
     function listFriends() {
-      for( var i = 0; i < user_info.friends.length; i++ ){
-        $('#friend_list').append('<img src="http://localhost:3000/system/users/avatars/000/000/' + pad (user_info.friends[i].id, 3) + '/small/' + user_info.friends[i].avatar + '" width="85" height="85" alt="' + user_info.friends[i].fullName + '" title="' + user_info.friends[i].fullName + '" />' );
+      for( var i = 0; i < userInfo.friends.length; i++ ){
+        $('#friend_list').append('<img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" />' );
       };
       spinner.stop();
     }
   }
 
 
-
-  // OnClick event handlers for the buttons.
+  // Event handlers
   return {
     onload: function () {
       runSpinner();
@@ -111,13 +118,66 @@ var userLoader = (function() {
       hwaccel: false, // Whether to use hardware acceleration
       className: 'spinner', // The CSS class to assign to the spinner
       zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: '50%', // Top position relative to parent
+      top: '70%', // Top position relative to parent
       left: '50%' // Left position relative to parent
     };
     var target = document.getElementById('friend_list');
     spinner = new Spinner(opts).spin(target);
   }
-
 })();
 
 window.onload = userLoader.onload;
+
+
+
+// Send tip
+
+chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
+  siteUrl = tabs[0].url;
+});
+
+function tipRequest(link, id) {
+  console.dir('request start')
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://localhost:3000/api/tips", true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  xhr.onload = requestComplete;
+  xhr.send('"user_id='+id+'&link='+link+'"');
+  console.dir('"user_id='+id+'&link='+link+'"')
+
+  function requestComplete() {
+    if (this.status == 401 && retry) {
+      retry = false;
+      chrome.identity.removeCachedAuthToken({ token: accessToken },
+                                            interactiveSignIn);
+    } else {
+      onTipSent(null, this.status, this.response);
+    }
+  }
+}
+
+function onTipSent(error, status, response) {
+  if (!error && status == 200) {
+    console.dir(response)
+  } else if (status == 500) {
+    console.dir(response)
+  } else {
+    console.dir(response)
+  }
+}
+
+function sendTip() {
+  tipRequest(siteUrl,
+             userID);
+}
+
+
+
+// Run after 5 seconds
+$(function() {
+      setTimeout(function () {
+        sendTip();
+    }, 5000);
+});
+
+
