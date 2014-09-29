@@ -42,3 +42,8 @@ p {
 	border: 3px solid white;
 	border-radius: 5px;
 }
+
+#friend_list img:hover {
+	border: 3px solid #ddd;
+}
+

@@ -2,7 +2,7 @@
 
 // Shared functions
 
-var userInfo, accessToken, userID, siteUrl;
+var userInfo, accessToken, userID, siteUrl, f0, f1, f2, f3, f4, f5, f6, f7;
 
 // Authenticate and get user info
 
@@ -62,7 +62,6 @@ var userLoader = (function() {
     if (!error && status == 200) {
       userInfo = JSON.parse(response);
       userID = userInfo.uID
-      // console.dir(response)
       showUser();
       listFriends();
     } else if (status == 500) {
@@ -76,23 +75,18 @@ var userLoader = (function() {
     }
 
     function listFriends() {
-      for( var i = 0; i < userInfo.friends.length; i++ ){
-        $('#friend_list').append('<img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" />' );
+      if (userInfo.friends.length > 8) {
+        var j = 8
+      } else {
+        var j = userInfo.friends.length
+      }
+
+      for( var i = 0; i < j; i++ ){
+        $('#f'+i).append('<img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" />' );
       };
       spinner.stop();
     }
   }
-
-
-  // Event handlers
-  return {
-    onload: function () {
-      runSpinner();
-      interactiveSignIn(function() {
-        getInfo();
-      });
-    }
-  };
 
 
 
@@ -124,6 +118,19 @@ var userLoader = (function() {
     var target = document.getElementById('friend_list');
     spinner = new Spinner(opts).spin(target);
   }
+
+
+
+  // Event handlers
+  return {
+    onload: function () {
+      runSpinner();
+      interactiveSignIn(function() {
+        getInfo();
+      });
+    }
+  };
+
 })();
 
 window.onload = userLoader.onload;
@@ -136,20 +143,13 @@ chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
   siteUrl = tabs[0].url;
 });
 
-function tipRequest(link, id) {
-  console.dir('request start')
+function sendTip(link, id, recid, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "http://localhost:3000/api/tips", true);
   xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  xhr.onload = requestComplete;
-  // Form data method
-  /// var formData = new FormData();
-  /// formData.append('user_id', id);
-  /// formData.append('link', link);
-  /// xhr.send(formData);
-  // JSON request
   xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.send('{"link":"'+link+'", "user_id":"'+id+'"}');
+  xhr.onload = requestComplete;
+  xhr.send('{"link":"'+link+'", "user_id":"'+id+'", "recipient_id":"'+recid+'"}');
 
   function requestComplete() {
     if (this.status == 401 && retry) {
@@ -163,27 +163,55 @@ function tipRequest(link, id) {
 }
 
 function onTipSent(error, status, response) {
-  if (!error && status == 200) {
-    console.dir(response)
-  } else if (status == 500) {
-    console.dir(response)
+  if (!error) {
+    window.close();
   } else {
     console.dir(response)
   }
 }
 
-function sendTip() {
-  tipRequest(siteUrl,
-             userID);
-}
 
 
-
-// Run after 5 seconds
 $(function() {
-      setTimeout(function () {
-        sendTip();
-    }, 5000);
+    $( '#f0' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[0].id);
+    });  
+    $( '#f1' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[1].id);
+    }); 
+    $( '#f2' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[2].id);
+    });  
+    $( '#f3' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[3].id);
+    }); 
+    $( '#f4' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[4].id);
+    }); 
+    $( '#f5' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[5].id);
+    }); 
+    $( '#f6' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[6].id);
+    }); 
+    $( '#f7' ).click(function() {
+      sendTip(siteUrl,
+              userID,
+              userInfo.friends[7].id);
+    }); 
 });
-
 
