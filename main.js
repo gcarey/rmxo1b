@@ -142,8 +142,14 @@ function tipRequest(link, id) {
   xhr.open("POST", "http://localhost:3000/api/tips", true);
   xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
   xhr.onload = requestComplete;
-  xhr.send('"user_id='+id+'&link='+link+'"');
-  console.dir('"user_id='+id+'&link='+link+'"')
+  // Form data method
+  /// var formData = new FormData();
+  /// formData.append('user_id', id);
+  /// formData.append('link', link);
+  /// xhr.send(formData);
+  // JSON request
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.send('{"link":"'+link+'", "user_id":"'+id+'"}');
 
   function requestComplete() {
     if (this.status == 401 && retry) {
