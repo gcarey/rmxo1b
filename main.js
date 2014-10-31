@@ -109,12 +109,14 @@ var userLoader = (function() {
     }
 
     function listFriends() {
+      var recipients = []
+
       // Removed elements
       spinner.stop();
 
       // New elements
       for( var i = 0; i < userInfo.friends.length; i++ ){
-        $('#friend_list').append('<a class="friend_thumb" id="' + i + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+        $('#friend_list').append('<a class="friend_thumb" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
       };
       $('#actions').append('<a class="btn" id="send-button">Send Tip</a>' );
 
@@ -123,8 +125,12 @@ var userLoader = (function() {
         var $$ = $(this)
         if( !$$.is('.selected')){
             $$.addClass('selected');
-            console.dir(this.id)
+            recipients.push(this.id)
         } else {
+            var index = recipients.indexOf(this.id);
+            if (index > -1) {
+                recipients.splice(index, 1);
+            }
             $$.removeClass('selected');
         }
       });
@@ -133,7 +139,7 @@ var userLoader = (function() {
       $( '#send-button' ).click(function() {
         sendTip(siteUrl,
                 userID,
-                '2,4');
+                recipients.join(","));
       });
     }
   }
