@@ -1,10 +1,47 @@
 'use strict';
 
-// Shared functions
+// Shared variables
 
-var userInfo, accessToken, userID, siteUrl, f0, f1, f2, f3, f4, f5, f6, f7;
+var userInfo, accessToken, userID, siteUrl;
 
-// Authenticate and get user info
+chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
+  siteUrl = tabs[0].url;
+});
+
+
+
+// Send tip
+
+function sendTip(link, id, recid, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://localhost:3000/api/tips", true);
+  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onload = requestComplete;
+  xhr.send('{"link":"'+link+'", "user_id":"'+id+'", "recipient_ids":"'+recid+'"}');
+
+  function requestComplete() {
+    if (this.status == 401 && retry) {
+      retry = false;
+      chrome.identity.removeCachedAuthToken({ token: accessToken },
+                                            interactiveSignIn);
+    } else {
+      onTipSent(null, this.status, this.response);
+    }
+  }
+}
+
+function onTipSent(error, status, response) {
+  if (!error) {
+    window.close();
+  } else {
+    console.dir(response)
+  }
+}
+
+
+
+// Actions on load: Authenticate and get user info
 
 var userLoader = (function() {
   var spinner;
@@ -49,14 +86,11 @@ var userLoader = (function() {
     }
   }
 
-
-
   function getInfo() {
     xhrWithAuth('GET',
                 'http://localhost:3000/api/friends',
                 onInfoFetched);
   }
-
 
   function onInfoFetched(error, status, response) {
     if (!error && status == 200) {
@@ -75,19 +109,34 @@ var userLoader = (function() {
     }
 
     function listFriends() {
-      if (userInfo.friends.length > 8) {
-        var j = 8
-      } else {
-        var j = userInfo.friends.length
-      }
-
-      for( var i = 0; i < j; i++ ){
-        $('#f'+i).append('<img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" />' );
-      };
+      // Removed elements
       spinner.stop();
+
+      // New elements
+      for( var i = 0; i < userInfo.friends.length; i++ ){
+        $('#friend_list').append('<a class="friend_thumb" id="' + i + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+      };
+      $('#actions').append('<a class="btn" id="send-button">Send Tip</a>' );
+
+      // Click handlers on new elements
+      $( '.friend_thumb' ).click(function() {
+        var $$ = $(this)
+        if( !$$.is('.selected')){
+            $$.addClass('selected');
+            console.dir(this.id)
+        } else {
+            $$.removeClass('selected');
+        }
+      });
+
+
+      $( '#send-button' ).click(function() {
+        sendTip(siteUrl,
+                userID,
+                '2,4');
+      });
     }
   }
-
 
 
   // Misc useful functions
@@ -134,84 +183,3 @@ var userLoader = (function() {
 })();
 
 window.onload = userLoader.onload;
-
-
-
-// Send tip
-
-chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
-  siteUrl = tabs[0].url;
-});
-
-function sendTip(link, id, recid, callback) {
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:3000/api/tips", true);
-  xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-  xhr.setRequestHeader("Content-Type", "application/json");
-  xhr.onload = requestComplete;
-  xhr.send('{"link":"'+link+'", "user_id":"'+id+'", "recipient_id":"'+recid+'"}');
-
-  function requestComplete() {
-    if (this.status == 401 && retry) {
-      retry = false;
-      chrome.identity.removeCachedAuthToken({ token: accessToken },
-                                            interactiveSignIn);
-    } else {
-      onTipSent(null, this.status, this.response);
-    }
-  }
-}
-
-function onTipSent(error, status, response) {
-  if (!error) {
-    window.close();
-  } else {
-    console.dir(response)
-  }
-}
-
-
-
-$(function() {
-    $( '#f0' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[0].id);
-    });  
-    $( '#f1' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[1].id);
-    }); 
-    $( '#f2' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[2].id);
-    });  
-    $( '#f3' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[3].id);
-    }); 
-    $( '#f4' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[4].id);
-    }); 
-    $( '#f5' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[5].id);
-    }); 
-    $( '#f6' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[6].id);
-    }); 
-    $( '#f7' ).click(function() {
-      sendTip(siteUrl,
-              userID,
-              userInfo.friends[7].id);
-    }); 
-});
-
