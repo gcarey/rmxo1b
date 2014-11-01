@@ -41,6 +41,33 @@ function onTipSent(error, status, response) {
 
 
 
+// Filtering
+
+function filter(element) {
+  var value = $(element).val().toLowerCase();
+
+  $("#friend_list > a").each(function() {
+    if (this.className.toLowerCase().search(value) > -1) {
+        $(this).show();
+    }
+    else {
+        $(this).hide();
+    }
+  });
+}
+
+
+
+// Actions on ready
+
+$(document).ready(function () {
+  $("#search").keyup(function () {
+    filter(this)
+  });
+});
+
+
+
 // Actions on load: Authenticate and get user info
 
 var userLoader = (function() {
@@ -116,9 +143,10 @@ var userLoader = (function() {
 
       // New elements
       for( var i = 0; i < userInfo.friends.length; i++ ){
-        $('#friend_list').append('<a class="friend_thumb" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+        $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
       };
-      $('#actions').append('<a class="btn" id="send-button">Send Tip</a>' );
+      $('#search,#actions').show();
+      $("#search").focus()
 
       // Click handlers on new elements
       $( '.friend_thumb' ).click(function() {
@@ -133,6 +161,7 @@ var userLoader = (function() {
             }
             $$.removeClass('selected');
         }
+        $("#search").focus()
       });
 
 
