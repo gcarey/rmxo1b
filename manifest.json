@@ -18,9 +18,6 @@
   },
 
 
-  "background": {
-    "page": "background.html"
-  },
 
   "browser_action": {
     "default_icon": "img/icon.png",
@@ -30,6 +27,7 @@
   "permissions": [ 
     "tabs",
     "identity",
+    "storage",
     "http://localhost:3000/*"
   ]
 }

@@ -10,6 +10,8 @@ chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
 
 
 
+
+
 // Send tip
 
 function sendTip(link, id, recid, callback) {
@@ -35,9 +37,12 @@ function onTipSent(error, status, response) {
   if (!error) {
     window.close();
   } else {
+    //Temporary error handling
     console.dir(response)
   }
 }
+
+
 
 
 
@@ -58,6 +63,8 @@ function filter(element) {
 
 
 
+
+
 // Actions on ready
 
 $(document).ready(function () {
@@ -68,7 +75,9 @@ $(document).ready(function () {
 
 
 
-// Actions on load: Authenticate and get user info
+
+
+// Actions on load: Authenticate, get and display user info, display UI
 
 var userLoader = (function() {
   var spinner;
@@ -78,10 +87,19 @@ var userLoader = (function() {
       { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
       function(redirect) {
         if (chrome.runtime.lastError) {
-
+          //Error handling?
         } else {
-          var token = redirect.split('access_token=')[1].split('&token_type')[0];
-          accessToken = token;
+          accessToken = redirect.split('access_token=')[1].split('&token_type')[0];
+
+          var packet = {
+            token: accessToken, 
+            setat: +new Date
+          };
+
+          chrome.storage.local.set({'packet': packet}, function() {
+            console.dir('Saved this access token: ' + packet.token);
+          });
+
           callback();
         }
       }
@@ -114,9 +132,22 @@ var userLoader = (function() {
   }
 
   function getInfo() {
-    xhrWithAuth('GET',
-                'http://localhost:3000/api/friends',
-                onInfoFetched);
+    chrome.storage.local.get('packet', function (result) {
+      var tokenSet = new Date(parseInt(result.packet.setat));
+      var currentTime = new Date();
+      var diffHours = (currentTime - tokenSet) / (1000*60*60);
+
+        if (diffHours < 1.99) {
+          accessToken = result.packet.token
+          xhrWithAuth('GET',
+                      'http://localhost:3000/api/friends',
+                      onInfoFetched);
+          console.dir('Used existing token. Current token age: ' + diffHours + ' of 2 hours.')
+        } else {
+          interactiveSignIn(getInfo);
+          console.dir('Redirected to sign in')
+        }
+    });
   }
 
   function onInfoFetched(error, status, response) {
@@ -209,9 +240,7 @@ var userLoader = (function() {
   return {
     onload: function () {
       runSpinner();
-      interactiveSignIn(function() {
-        getInfo();
-      });
+      getInfo();
     }
   };
 
