@@ -87,26 +87,17 @@ var userLoader = (function() {
       { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
       function(redirect) {
         if (chrome.runtime.lastError) {
-          //Error handling?
+          // Error handling?
+          console.error(chrome.runtime.lastError);
         } else {
           accessToken = redirect.split('access_token=')[1].split('&token_type')[0];
-
-          var packet = {
-            token: accessToken, 
-            setat: +new Date
-          };
-
-          chrome.storage.local.set({'packet': packet}, function() {
-            console.dir('Saved this access token: ' + packet.token);
-          });
-
+          var tokenPacket = { token: accessToken, setat: +new Date };
+          chrome.storage.local.set({'packet': tokenPacket}, null);
           callback();
         }
       }
     );
   }
-
-
 
   function xhrWithAuth(method, url, callback) {
     var retry = true;
@@ -131,18 +122,20 @@ var userLoader = (function() {
     }
   }
 
+
+
   function getInfo() {
     chrome.storage.local.get('packet', function (result) {
       var tokenSet = new Date(parseInt(result.packet.setat));
       var currentTime = new Date();
       var diffHours = (currentTime - tokenSet) / (1000*60*60);
 
-        if (diffHours < 1.99) {
+        if (diffHours < 23.99) {
           accessToken = result.packet.token
           xhrWithAuth('GET',
                       'http://localhost:3000/api/friends',
                       onInfoFetched);
-          console.dir('Used existing token. Current token age: ' + diffHours + ' of 2 hours.')
+          console.dir('Used existing token. Current token age: ' + diffHours + ' of 24 hours.')
         } else {
           interactiveSignIn(getInfo);
           console.dir('Redirected to sign in')
@@ -201,8 +194,15 @@ var userLoader = (function() {
                 userID,
                 recipients.join(","));
       });
+
+      chrome.runtime.getBackgroundPage(function() {
+        if (chrome.runtime.lastError) {
+         console.error(chrome.runtime.lastError);
+        }
+      });
     }
   }
+
 
 
   // Misc useful functions
@@ -227,7 +227,7 @@ var userLoader = (function() {
       hwaccel: false, // Whether to use hardware acceleration
       className: 'spinner', // The CSS class to assign to the spinner
       zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: '70%', // Top position relative to parent
+      top: '50%', // Top position relative to parent
       left: '50%' // Left position relative to parent
     };
     var target = document.getElementById('friend_list');
