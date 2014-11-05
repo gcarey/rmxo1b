@@ -48,28 +48,27 @@ function checkTips() {
       } else if (this.status == 200) {
         // Do nothing
       } else {
-      	console.dir('failed request, status: ' + this.status + ', token set at: ' + tokenSet + '. trying interactive log in.')
-
-        chrome.identity.launchWebAuthFlow(
-          { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
-          function(redirect) {
-            if (chrome.runtime.lastError) {
-              console.error(chrome.runtime.lastError);
-              clearInterval(sentryOn);
-            } else {
-              accessToken = redirect.split('access_token=')[1].split('&token_type')[0];
-              tokenSet = new Date();
-              var tokenPacket = { token: accessToken, setat: +new Date };
-              chrome.storage.local.set({'packet': tokenPacket}, null);
-              checkTips();
-            }
-          }
-        );
+      	console.dir('Request failed. Status: ' + this.status + ', Token Set At: ' + tokenSet)
       }
     }
-
   } else {
 		// Get new token and run checktips again
-		console.dir('no token, need new. token set at ' + tokenSet)
+		console.dir('No token or token out of date. Token set at ' + tokenSet)
+
+    chrome.identity.launchWebAuthFlow(
+      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
+      function(redirect) {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError);
+          clearInterval(sentryOn);
+        } else {
+          accessToken = redirect.split('access_token=')[1].split('&token_type')[0];
+          tokenSet = new Date();
+          var tokenPacket = { token: accessToken, setat: +new Date };
+          chrome.storage.local.set({'packet': tokenPacket}, null);
+          checkTips();
+        }
+      }
+    );
   };
 };
