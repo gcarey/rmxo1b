@@ -56,7 +56,7 @@ function checkTips() {
 		console.dir('No token or token out of date. Token set at ' + tokenSet)
 
     chrome.identity.launchWebAuthFlow(
-      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
+      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': false }, 
       function(redirect) {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError);

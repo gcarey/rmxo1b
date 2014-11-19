@@ -26,7 +26,7 @@ function sendTip(link, id, recid, callback) {
     if (this.status == 401 && retry) {
       retry = false;
       chrome.identity.removeCachedAuthToken({ token: accessToken },
-                                            interactiveSignIn);
+                                            signIn);
     } else {
       onTipSent(null, this.status, this.response);
     }
@@ -82,7 +82,7 @@ $(document).ready(function () {
 var userLoader = (function() {
   var spinner;
 
-  function interactiveSignIn(callback) {
+  function signIn(callback) {
     chrome.identity.launchWebAuthFlow(
       { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
       function(redirect) {
@@ -115,7 +115,7 @@ var userLoader = (function() {
       if (this.status == 401 && retry) {
         retry = false;
         chrome.identity.removeCachedAuthToken({ token: accessToken },
-                                              interactiveSignIn);
+                                              signIn);
       } else {
         callback(null, this.status, this.response);
       }
@@ -137,7 +137,7 @@ var userLoader = (function() {
                       onInfoFetched);
           console.dir('Used existing token. Current token age: ' + diffHours + ' of 24 hours.')
         } else {
-          interactiveSignIn(getInfo);
+          signIn(getInfo);
           console.dir('Redirected to sign in')
         }
     });
@@ -156,7 +156,9 @@ var userLoader = (function() {
     }
 
     function showUser() {
-      $('#menubar').append('<img class="avatar" src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
+      if (userInfo.uAvatar) {
+        $('#menubar').append('<img class="avatar" src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
+      }
     }
 
     function listFriends() {
@@ -167,7 +169,11 @@ var userLoader = (function() {
 
       // New elements
       for( var i = 0; i < userInfo.friends.length; i++ ){
-        $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+            if (userInfo.friends[i].avatar) {
+              $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+            } else {
+              $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+            }
       };
       $('#search,#actions').show();
       $("#search").focus()
