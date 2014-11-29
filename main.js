@@ -68,9 +68,24 @@ function filter(element) {
 // Actions on ready
 
 $(document).ready(function () {
-  $("#search").keyup(function () {
+  $("#field").keyup(function () {
     filter(this)
   });
+
+  $( '#taggable' ).click(function() {
+    $("#field").focus()
+  });
+
+            $( '.closer' ).click(function() {
+              $('li[id="'+this.id+'"]').remove();
+
+              $$.removeClass('selected');
+              // Remove recipient from hash
+              var index = recipients.indexOf(this.id);
+              if (index > -1) {
+                  recipients.splice(index, 1);
+              }
+          });
 });
 
 
@@ -175,8 +190,8 @@ var userLoader = (function() {
               $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
             }
       };
-      $('#search,#actions').show();
-      $("#search").focus()
+      $('#taggable,#actions').show();
+      $("#field").focus()
 
       // Click handlers on new elements
       $( '.friend_thumb' ).click(function() {
@@ -188,7 +203,7 @@ var userLoader = (function() {
           // Add recipient to hash
           recipients.push(this.id);
           // Show recipient name
-          $('#recipient_list').append('<span id="' + this.id + '">' + recName + ' </span>' );
+          $('#taggable').prepend('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
         } else {
           $$.removeClass('selected');
           // Remove recipient from hash
@@ -197,10 +212,10 @@ var userLoader = (function() {
               recipients.splice(index, 1);
           }
           // Remove recipient from hash
-          $('span[id="'+this.id+'"]').remove();
+          $('li[id="'+this.id+'"]').remove();
         }
 
-        $("#search").focus()
+        $("#field").focus()
       });
 
 
@@ -208,6 +223,17 @@ var userLoader = (function() {
         sendTip(siteUrl,
                 userID,
                 recipients.join(","));
+      });
+
+      $("#taggable").on( 'click', '.closer', function() {
+        var gp = $(this).parent().parent()
+        var gpid = gp.attr('id')
+        gp.remove();
+        $("a#"+gpid).removeClass('selected');
+        var index = recipients.indexOf(gpid);
+        if (index > -1) {
+            recipients.splice(index, 1);
+        }
       });
 
       chrome.runtime.getBackgroundPage(function() {

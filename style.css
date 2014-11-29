@@ -4,7 +4,7 @@ body {
   background-color: #fbfbfb;
   margin: 60px 15px 15px;
   padding: 0 5px;
-  height: 315px;
+  min-height: 315px;
 }
 
 p, a {
@@ -61,16 +61,13 @@ p, a {
 
 
 
-/** Bootstrap bootlegs **/
+/** BS bootlegs **/
 a.btn {
 	border: none;
 	padding: 5px 50px;
 	margin: 15px 0 5px;
 	font-size: 14px;
 	color: white;
-	background-image: -webkit-linear-gradient(top, #f60 0, #c24e00 100%);
-	background-image: -o-linear-gradient(top, #f60 0, #c24e00 100%);
-	background-image: linear-gradient(to bottom, #f60 0, #c24e00 100%);
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffff6600', endColorstr='#ffc24e00', GradientType=0);
 	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
 	background-repeat: repeat-x;
@@ -91,26 +88,67 @@ a.btn {
 	-webkit-user-select: none;
 }
 
-input[type=text]#search {
-	padding: 8px 10px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+ul#taggable {
+	padding: 4px 10px 0;
 	display: block;
 	width: 355px;
-	margin: 10px 5px 15px;
-	font-size: 14px;
-	color: #555555;
+	margin: 10px 5px;
 	background-color: white;
 	background-image: none;
 	border: 1px solid #cccccc;
 	border-radius: 4px;
 	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-	-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-	-o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-	transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 	display:none;
+	position:relative;
+	min-height: 28px;
+	list-style-type: none;
+	cursor: text;
 }
 
-input[type=text]#search:focus {
-    outline-width: 0;
+#taggable li {
+	display:inline;
+}
+
+#taggable li div {
+	background-color: #f5f5f5;
+	border: 1px solid #d9d9d9;
+	padding: 3px 5px;
+	border-radius: 3px;
+	cursor: default;
+	display: inline-block;
+	margin-bottom: 4px
+}
+
+.token {
+	padding-top:1px;
+	margin-right: 3px
+}
+
+.closer {
+	color: #acacac;
+	position: relative;
+	z-index: 10;
+}
+
+.closer:hover {
+	color: #8c8c8c;
+}
+
+#taggable li div.field-holder {
+	background-color: #fff;
+	border-color: transparent;
+	padding: 3px 0;
+}
+
+.search input[type=text]#field {
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: 14px;
+	color: #555555;
+  outline-width: 0;
+  border: none;
+  font-size: 14px;
+  background-color: transparent;
+  overflow: visible;
+  min-width:155px;
 }
