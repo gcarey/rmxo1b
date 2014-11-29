@@ -181,16 +181,25 @@ var userLoader = (function() {
       // Click handlers on new elements
       $( '.friend_thumb' ).click(function() {
         var $$ = $(this)
+        var recName = $$.attr('class').split('friend_thumb ')[1].split('. ')[0]+'.'
+
         if( !$$.is('.selected')){
-            $$.addClass('selected');
-            recipients.push(this.id)
+          $$.addClass('selected');
+          // Add recipient to hash
+          recipients.push(this.id);
+          // Show recipient name
+          $('#recipient_list').append('<span id="' + this.id + '">' + recName + ' </span>' );
         } else {
-            var index = recipients.indexOf(this.id);
-            if (index > -1) {
-                recipients.splice(index, 1);
-            }
-            $$.removeClass('selected');
+          $$.removeClass('selected');
+          // Remove recipient from hash
+          var index = recipients.indexOf(this.id);
+          if (index > -1) {
+              recipients.splice(index, 1);
+          }
+          // Remove recipient from hash
+          $('span[id="'+this.id+'"]').remove();
         }
+
         $("#search").focus()
       });
 
