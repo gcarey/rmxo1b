@@ -13,7 +13,7 @@ function checkTips() {
 
   if (diffHours < 23.99) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET','http://localhost:3000/api/tips');
+    xhr.open('GET','http://www.tipster.to/api/tips');
     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.onload = requestComplete;
     xhr.send();
@@ -32,7 +32,7 @@ function checkTips() {
 
         chrome.notifications.create("", opt, function(id) {
           var xhr = new XMLHttpRequest();
-          xhr.open('PUT','http://localhost:3000/api/shares/' + incoming.tips[0].shareId + '/serve');
+          xhr.open('PUT','http://www.tipster.to/api/shares/' + incoming.tips[0].shareId + '/serve');
           xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
           xhr.send();
 
@@ -40,7 +40,7 @@ function checkTips() {
             window.open(incoming.tips[0].link);
 
             var xhr = new XMLHttpRequest();
-            xhr.open('PUT','http://localhost:3000/api/shares/' + incoming.tips[0].shareId + '/visit');
+            xhr.open('PUT','http://www.tipster.to/api/shares/' + incoming.tips[0].shareId + '/visit');
             xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
             xhr.send();
           });
@@ -48,15 +48,13 @@ function checkTips() {
       } else if (this.status == 200) {
         // Do nothing
       } else {
-      	console.dir('Request failed. Status: ' + this.status + ', Token Set At: ' + tokenSet)
+        // Error handling
       }
     }
   } else {
 		// Get new token and run checktips again
-		console.dir('No token or token out of date. Token set at ' + tokenSet)
-
     chrome.identity.launchWebAuthFlow(
-      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': false }, 
+      { 'url': 'http://www.tipster.to/oauth/authorize?response_type=token&client_id=0bebcdc1239a035a8cddc2bb0133dca6a1057db3c4ee08948c43c5b7f6f22cdf&redirect_uri=https://'+chrome.runtime.id+'.chromiumapp.org/oce', 'interactive': false }, 
       function(redirect) {
         if (chrome.runtime.lastError) {
           console.error(chrome.runtime.lastError);

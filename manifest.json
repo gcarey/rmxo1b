@@ -3,19 +3,15 @@
 
 
   "name": "Tipster",
+  "short_name": "Tipster",
   "description": "Share stuff with friends.",
-  "version": "0.0.1",
+  "homepage_url": "http://www.tipster.to",
+  "author": "Garrett Carey",
+  "version": "0.0.0.5",
 
   "icons": { "16": "img/icon16.png",
              "48": "img/icon48.png",
              "128": "img/icon128.png" },
-
-
-  "key": "ac0f19375674cd8a937e81ca6ed55e1f21055c8da299b8b85d63e4ad646b53ab",
-  "oauth2": {
-    "client_id": "1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031",
-    "scopes": ["public"]
-  },
 
 
   "browser_action": {
@@ -33,10 +29,13 @@
     "identity",
     "storage",
     "notifications",
-    "http://localhost:3000/*"
+    "http://www.tipster.to/*"
   ],
 
   "web_accessible_resources": [
     "img/icon48.png"
-  ]
+  ],
+
+
+  "incognito": "split"
 }

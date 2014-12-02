@@ -4,8 +4,8 @@
     <title>Tipster</title>
     <link rel="stylesheet" type="text/css" href="style.css">
     <link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
-    <script src="jquery-1.11.1.min.js"></script>
-    <script src="spin.min.js"></script>
+    <script src="plugins/jquery-1.11.1.min.js"></script>
+    <script src="plugins/spin.min.js"></script>
     <script src="main.js"></script>
   </head>
   <body>
@@ -13,10 +13,9 @@
     <p>Share this page with friends:</p>
     <ul id="taggable">
       <li class="search">
-        <div class="field-holder"><input type="text" id="field" placeholder="Type name or email here" /></div>
+        <div id="field-holder"><input type="text" id="field" placeholder="Type name or email here" /></div>
       </li>
     </ul>
-    <div id="recipient_list"></div>
     <div id="friend_list"></div>
     <div id="actions"><a class="btn" id="send-button">Send Tip</a></div>
   </body>

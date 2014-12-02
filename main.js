@@ -1,5 +1,3 @@
-'use strict';
-
 // Shared variables
 
 var userInfo, accessToken, userID, siteUrl;
@@ -16,7 +14,7 @@ chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
 
 function sendTip(link, id, recid, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:3000/api/tips", true);
+  xhr.open("POST", "http://www.tipster.to/api/tips", true);
   xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.onload = requestComplete;
@@ -37,8 +35,7 @@ function onTipSent(error, status, response) {
   if (!error) {
     window.close();
   } else {
-    //Temporary error handling
-    console.dir(response)
+    // Error handling
   }
 }
 
@@ -99,7 +96,7 @@ var userLoader = (function() {
 
   function signIn(callback) {
     chrome.identity.launchWebAuthFlow(
-      { 'url': 'http://localhost:3000/oauth/authorize?response_type=token&client_id=1a5486719de2be85b1e98f4016131b89055616e1f352fff8bd9710f8b67bc031&redirect_uri=https://hngjgjponalciaofpdggekmlholcleok.chromiumapp.org/oce', 'interactive': true }, 
+      { 'url': 'http://www.tipster.to/oauth/authorize?response_type=token&client_id=0bebcdc1239a035a8cddc2bb0133dca6a1057db3c4ee08948c43c5b7f6f22cdf&redirect_uri=https://'+chrome.runtime.id+'.chromiumapp.org/oce', 'interactive': true }, 
       function(redirect) {
         if (chrome.runtime.lastError) {
           // Error handling?
@@ -141,20 +138,22 @@ var userLoader = (function() {
 
   function getInfo() {
     chrome.storage.local.get('packet', function (result) {
-      var tokenSet = new Date(parseInt(result.packet.setat));
-      var currentTime = new Date();
-      var diffHours = (currentTime - tokenSet) / (1000*60*60);
+      if (result.packet) {
+        var tokenSet = new Date(parseInt(result.packet.setat));
+        var currentTime = new Date();
+        var diffHours = (currentTime - tokenSet) / (1000*60*60);
 
         if (diffHours < 23.99) {
           accessToken = result.packet.token
           xhrWithAuth('GET',
-                      'http://localhost:3000/api/friends',
+                      'http://www.tipster.to/api/friends',
                       onInfoFetched);
-          console.dir('Used existing token. Current token age: ' + diffHours + ' of 24 hours.')
         } else {
           signIn(getInfo);
-          console.dir('Redirected to sign in')
         }
+      } else {
+        signIn(getInfo);
+      }
     });
   }
 
@@ -172,7 +171,7 @@ var userLoader = (function() {
 
     function showUser() {
       if (userInfo.uAvatar) {
-        $('#menubar').append('<img class="avatar" src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
+        $('#menubar').append('<img class="avatar" src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
       }
     }
 
@@ -185,9 +184,9 @@ var userLoader = (function() {
       // New elements
       for( var i = 0; i < userInfo.friends.length; i++ ){
             if (userInfo.friends[i].avatar) {
-              $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://localhost:3000/system/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a><div class="friend_placeholder place-1"></div><div class="friend_placeholder place-2"></div><div class="friend_placeholder place-3"></div><div class="friend_placeholder place-4"></div><div class="friend_placeholder place-5"></div><div class="friend_placeholder place-6"></div><div class="friend_placeholder place-7"></div><div class="friend_placeholder place-8"></div>' );
             } else {
-              $('#friend_list').append('<a class="friend_thumb ' + userInfo.friends[i].fullName + ' ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
+              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a><div class="friend_placeholder place-1"></div><div class="friend_placeholder place-2"></div><div class="friend_placeholder place-3"></div><div class="friend_placeholder place-4"></div><div class="friend_placeholder place-5"></div><div class="friend_placeholder place-6"></div><div class="friend_placeholder place-7"></div><div class="friend_placeholder place-8"></div>' );
             }
       };
       $('#taggable,#actions').show();
@@ -196,7 +195,7 @@ var userLoader = (function() {
       // Click handlers on new elements
       $( '.friend_thumb' ).click(function() {
         var $$ = $(this)
-        var recName = $$.attr('class').split('friend_thumb ')[1].split('. ')[0]+'.'
+        var recName = $$.attr('class').split(' friend_thumb')[0]
 
         if( !$$.is('.selected')){
           $$.addClass('selected');
