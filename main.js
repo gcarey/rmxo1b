@@ -73,16 +73,20 @@ $(document).ready(function () {
     $("#field").focus()
   });
 
-            $( '.closer' ).click(function() {
-              $('li[id="'+this.id+'"]').remove();
+  $("#taggable").on( 'click', '.closer', function() {
+    var gp = $(this).parent().parent()
+    var gpid = gp.attr('id')
+    gp.remove();
+    $("a#"+gpid).removeClass('selected');
+    var index = recipients.indexOf(gpid);
+    if (index > -1) {
+        recipients.splice(index, 1);
+    }
+  });
 
-              $$.removeClass('selected');
-              // Remove recipient from hash
-              var index = recipients.indexOf(this.id);
-              if (index > -1) {
-                  recipients.splice(index, 1);
-              }
-          });
+  $("#menubar").on( 'click', '.tip-alert', function() {
+    window.open('http://www.tipster.to/visit_link/' + userInfo.tips[0].id);
+  });
 });
 
 
@@ -160,6 +164,7 @@ var userLoader = (function() {
   function onInfoFetched(error, status, response) {
     if (!error && status == 200) {
       userInfo = JSON.parse(response);
+      console.dir(userInfo)
       userID = userInfo.uID
       showUser();
       listFriends();
@@ -173,7 +178,13 @@ var userLoader = (function() {
       if (userInfo.uAvatar) {
         $('#menubar').append('<img class="avatar" src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
       }
+      if (userInfo.tips[0].id) {
+        $('#menubar').append('<a class="nav-alert tip-alert">New tip from '+userInfo.tips[0].sender+'!</a>' );
+      }
     }
+
+
+
 
     function listFriends() {
       var recipients = []
@@ -217,24 +228,13 @@ var userLoader = (function() {
         $("#field").focus()
       });
 
-
       $( '#send-button' ).click(function() {
         sendTip(siteUrl,
                 userID,
                 recipients.join(","));
       });
 
-      $("#taggable").on( 'click', '.closer', function() {
-        var gp = $(this).parent().parent()
-        var gpid = gp.attr('id')
-        gp.remove();
-        $("a#"+gpid).removeClass('selected');
-        var index = recipients.indexOf(gpid);
-        if (index > -1) {
-            recipients.splice(index, 1);
-        }
-      });
-
+      // Run Sentry.js
       chrome.runtime.getBackgroundPage(function() {
         if (chrome.runtime.lastError) {
          console.error(chrome.runtime.lastError);

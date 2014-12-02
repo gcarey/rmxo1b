@@ -35,6 +35,23 @@ p, a {
 		border-radius: 3px;
 	}
 
+	.nav-alert {
+		position:absolute;
+		top: 6px;
+		margin: 0;
+		right: 50px;
+		background-color: #f5f5f5;
+		border-radius: 5px;
+		padding: 5px 10px 5px 12px;
+		box-shadow: 1px 1px 1px #e2e2e2;
+		cursor:pointer;
+	}
+
+	.nav-alert:hover {
+		background-color: #efefef;
+	}
+
+
 ul#taggable {
 	padding: 4px 10px 0;
 	display: block;

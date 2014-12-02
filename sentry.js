@@ -37,12 +37,7 @@ function checkTips() {
           xhr.send();
 
           chrome.notifications.onClicked.addListener(function() {
-            window.open(incoming.tips[0].link);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('PUT','http://www.tipster.to/api/shares/' + incoming.tips[0].shareId + '/visit');
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.send();
+            window.open('http://www.tipster.to/visit_link/' + incoming.tips[0].id);
           });
         });
       } else if (this.status == 200) {
