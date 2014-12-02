@@ -164,7 +164,6 @@ var userLoader = (function() {
   function onInfoFetched(error, status, response) {
     if (!error && status == 200) {
       userInfo = JSON.parse(response);
-      console.dir(userInfo)
       userID = userInfo.uID
       showUser();
       listFriends();
@@ -178,7 +177,7 @@ var userLoader = (function() {
       if (userInfo.uAvatar) {
         $('#menubar').append('<img class="avatar" src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.uID, 3) + '/thumb/' + userInfo.uAvatar + '" width="27" height="27" alt="' + userInfo.uName + '" title="' + userInfo.uname + '" />' );
       }
-      if (userInfo.tips[0].id) {
+      if (userInfo.tips.length > 0) {
         $('#menubar').append('<a class="nav-alert tip-alert">New tip from '+userInfo.tips[0].sender+'!</a>' );
       }
     }
@@ -212,8 +211,8 @@ var userLoader = (function() {
           $$.addClass('selected');
           // Add recipient to hash
           recipients.push(this.id);
-          // Show recipient name
-          $('#taggable').prepend('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
+          // Add token
+          $('#taggable').prepend('<li class="token" id="t' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
         } else {
           $$.removeClass('selected');
           // Remove recipient from hash
@@ -221,8 +220,8 @@ var userLoader = (function() {
           if (index > -1) {
               recipients.splice(index, 1);
           }
-          // Remove recipient from hash
-          $('li[id="'+this.id+'"]').remove();
+          // Remove token
+          $('li[id="t'+this.id+'"]').remove();
         }
 
         $("#field").focus()
@@ -267,7 +266,7 @@ var userLoader = (function() {
       hwaccel: false, // Whether to use hardware acceleration
       className: 'spinner', // The CSS class to assign to the spinner
       zIndex: 2e9, // The z-index (defaults to 2000000000)
-      top: '50%', // Top position relative to parent
+      top: '65%', // Top position relative to parent
       left: '50%' // Left position relative to parent
     };
     var target = document.getElementById('friend_list');
