@@ -3,7 +3,7 @@ var accessToken, tokenSet, incoming, sentryOn;
 chrome.storage.local.get('packet', function (result) {
 	accessToken = result.packet.token;
 	tokenSet = new Date(parseInt(result.packet.setat));
-  sentryOn = setInterval(checkTips, 60000)
+  sentryOn = setInterval(checkTips, 30000)
 });
 
 

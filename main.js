@@ -232,13 +232,6 @@ var userLoader = (function() {
                 userID,
                 recipients.join(","));
       });
-
-      // Run Sentry.js
-      chrome.runtime.getBackgroundPage(function() {
-        if (chrome.runtime.lastError) {
-         console.error(chrome.runtime.lastError);
-        }
-      });
     }
   }
 
