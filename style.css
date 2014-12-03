@@ -99,7 +99,7 @@ ul#taggable {
 		color: #8c8c8c;
 	}
 
-	#taggable li div#field-holder {
+	#taggable li div#field_holder {
 		background-color: #fff;
 		border-color: transparent;
 		padding: 3px 0;
@@ -165,9 +165,11 @@ ul#taggable {
 	display: none;
 }
 
-	a.btn {
+	#actions a.btn {
+		position:relative;
 		border: none;
-		padding: 5px 50px;
+		padding: 5px 0;
+		width: 162px;
 		margin: 15px 0 5px;
 		font-size: 14px;
 		color: white;
@@ -189,4 +191,19 @@ ul#taggable {
 		line-height: 1.42857143;
 		border-radius: 4px;
 		-webkit-user-select: none;
+	}
+
+	@-webkit-keyframes dots {
+	    0% { background-position: 0px; }
+	    100% { background-position: 15px; }
+	}
+
+	#actions a.btn span {
+	    background: linear-gradient(to right, #f60 50%, white 50%);
+	    color: transparent;
+	    -webkit-background-clip: text;
+	    -webkit-animation: dots 2s infinite steps(4);
+	    padding-right: 40px;
+	    margin-right: -40px;
+	    text-shadow: none;
 	}
