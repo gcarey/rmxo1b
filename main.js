@@ -192,11 +192,13 @@ var userLoader = (function() {
       spinner.stop();
 
       // New elements
+      $('#friend_list').append('<div class="friend_placeholder place-1"></div><div class="friend_placeholder place-2"></div><div class="friend_placeholder place-3"></div><div class="friend_placeholder place-4"></div><div class="friend_placeholder place-5"></div><div class="friend_placeholder place-6"></div><div class="friend_placeholder place-7"></div><div class="friend_placeholder place-8"></div>' );
+
       for( var i = 0; i < userInfo.friends.length; i++ ){
             if (userInfo.friends[i].avatar) {
-              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a><div class="friend_placeholder place-1"></div><div class="friend_placeholder place-2"></div><div class="friend_placeholder place-3"></div><div class="friend_placeholder place-4"></div><div class="friend_placeholder place-5"></div><div class="friend_placeholder place-6"></div><div class="friend_placeholder place-7"></div><div class="friend_placeholder place-8"></div>' );
+              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="http://s3.amazonaws.com/rmxo-tipster/users/avatars/000/000/' + pad (userInfo.friends[i].id, 3) + '/small/' + userInfo.friends[i].avatar + '" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
             } else {
-              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a><div class="friend_placeholder place-1"></div><div class="friend_placeholder place-2"></div><div class="friend_placeholder place-3"></div><div class="friend_placeholder place-4"></div><div class="friend_placeholder place-5"></div><div class="friend_placeholder place-6"></div><div class="friend_placeholder place-7"></div><div class="friend_placeholder place-8"></div>' );
+              $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
             }
       };
       $('#taggable,#actions').show();
@@ -212,7 +214,7 @@ var userLoader = (function() {
           // Add recipient to hash
           recipients.push(this.id);
           // Add token
-          $('#taggable').prepend('<li class="token" id="t' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
+          $('#search').before('<li class="token" id="t' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
         } else {
           $$.removeClass('selected');
           // Remove recipient from hash
