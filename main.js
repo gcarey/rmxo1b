@@ -74,14 +74,14 @@ $(document).ready(function () {
   });
 
   $("#taggable").on( 'click', '.closer', function() {
-    var gp = $(this).parent().parent()
-    var gpid = gp.attr('id')
-    gp.remove();
-    $("a#"+gpid).removeClass('selected');
-    var index = recipients.indexOf(gpid);
+    var token = $(this).parent().parent()
+    var tokenId = token.attr('id')
+    token.remove();
+    $("a#"+tokenId).removeClass('selected');
+    var index = recipients.indexOf(tokenId);
     if (index > -1) {
         recipients.splice(index, 1);
-    }
+    };
   });
 
   $("#menubar").on( 'click', '.tip-alert', function() {
@@ -214,7 +214,9 @@ var userLoader = (function() {
           // Add recipient to hash
           recipients.push(this.id);
           // Add token
-          $('#search').before('<li class="token" id="t' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
+          $('#search').before('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
+          $('#field').val('');
+          filter('#field');
         } else {
           $$.removeClass('selected');
           // Remove recipient from hash
@@ -223,7 +225,7 @@ var userLoader = (function() {
               recipients.splice(index, 1);
           }
           // Remove token
-          $('li[id="t'+this.id+'"]').remove();
+          $('li[id="'+this.id+'"]').remove();
         }
 
         $("#field").focus()
