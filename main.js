@@ -143,18 +143,10 @@ var userLoader = (function() {
   function getInfo() {
     chrome.storage.local.get('packet', function (result) {
       if (result.packet) {
-        var tokenSet = new Date(parseInt(result.packet.setat));
-        var currentTime = new Date();
-        var diffHours = (currentTime - tokenSet) / (1000*60*60);
-
-        if (diffHours < 23.99) {
-          accessToken = result.packet.token
-          xhrWithAuth('GET',
-                      'http://www.tipster.to/api/friends',
-                      onInfoFetched);
-        } else {
-          signIn(getInfo);
-        }
+        accessToken = result.packet.token
+        xhrWithAuth('GET',
+                    'http://www.tipster.to/api/friends',
+                    onInfoFetched);
       } else {
         signIn(getInfo);
       }

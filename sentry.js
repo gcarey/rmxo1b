@@ -1,17 +1,14 @@
-var accessToken, tokenSet, incoming, sentryOn;
+var accessToken, incoming, sentryOn;
 
 chrome.storage.local.get('packet', function (result) {
 	accessToken = result.packet.token;
-	tokenSet = new Date(parseInt(result.packet.setat));
   sentryOn = setInterval(checkTips, 30000)
 });
 
 
 function checkTips() {
-  var currentTime = new Date();
-  var diffHours = (currentTime - tokenSet) / (1000*60*60);
 
-  if (diffHours < 23.99) {
+  if (accessToken.length > 0) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET','http://www.tipster.to/api/tips');
     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
@@ -41,7 +38,7 @@ function checkTips() {
           });
         });
       } else if (this.status == 200) {
-        // Do nothing
+        // No new tips, do nothing
       } else {
         // Error handling
       }
@@ -56,7 +53,6 @@ function checkTips() {
           clearInterval(sentryOn);
         } else {
           accessToken = redirect.split('access_token=')[1].split('&token_type')[0];
-          tokenSet = new Date();
           var tokenPacket = { token: accessToken, setat: +new Date };
           chrome.storage.local.set({'packet': tokenPacket}, null);
           checkTips();
