@@ -7,11 +7,13 @@
   "description": "Share stuff with friends.",
   "homepage_url": "http://www.tipster.to",
   "author": "Garrett Carey",
-  "version": "0.0.1.1",
+  "version": "0.0.1.2",
 
-  "icons": { "16": "img/icon16.png",
-             "48": "img/icon48.png",
-             "128": "img/icon128.png" },
+  "icons": { 
+    "16": "img/icon16.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
 
 
   "browser_action": {

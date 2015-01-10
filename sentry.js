@@ -17,6 +17,14 @@ function checkTips() {
 
     function requestComplete() {
       incoming = JSON.parse(this.response);
+      var cba = chrome.browserAction;
+
+      if (incoming.count > 0) {
+        cba.setBadgeBackgroundColor({color: '#ff6600'});
+        cba.setBadgeText({text: '' + incoming.count});
+      } else {
+        cba.setBadgeText({text: ''});
+      }
 
       if (this.status == 200 && incoming.tips[0]) {
         var opt = {
@@ -35,12 +43,13 @@ function checkTips() {
 
           chrome.notifications.onClicked.addListener(function() {
             window.open('http://www.tipster.to/visit_link/' + incoming.tips[0].id);
+            if (incoming.count > 1) {
+              cba.setBadgeText({text: '' + (incoming.count - 1)});
+            } else {
+              cba.setBadgeText({text: ''});
+            }
           });
         });
-      } else if (this.status == 200) {
-        // No new tips, do nothing
-      } else {
-        // Error handling
       }
     }
   } else {

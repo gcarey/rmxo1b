@@ -86,6 +86,11 @@ $(document).ready(function () {
 
   $("#menubar").on( 'click', '.tip-alert', function() {
     window.open('http://www.tipster.to/visit_link/' + userInfo.tips[0].id);
+    if (userInfo.tipsCount > 1) {
+      chrome.browserAction.setBadgeText({text: '' + (userInfo.tipsCount - 1)});
+    } else {
+      chrome.browserAction.setBadgeText({text: ''});
+    }
   });
 });
 
@@ -159,6 +164,7 @@ var userLoader = (function() {
       userID = userInfo.uID
       showUser();
       listFriends();
+      updateCount();
     } else if (status == 500) {
       $('#friend_list').append("We're knocking, no one's home. Did you log out of Tipster?");
     } else {
@@ -229,6 +235,18 @@ var userLoader = (function() {
           recipients.join(","));
         this.innerHTML = 'Sending<span>...</span>';
       });
+    }
+
+
+    function updateCount() {
+      var cba = chrome.browserAction;
+
+      if (userInfo.tipsCount > 0) {
+        cba.setBadgeBackgroundColor({color: '#ff6600'});
+        cba.setBadgeText({text: '' + userInfo.tipsCount});
+      } else {
+        cba.setBadgeText({text: ''});
+      }
     }
   }
 
