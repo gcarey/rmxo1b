@@ -1,10 +1,28 @@
-// Shared variables
+// Shared variables, functions
 
 var userInfo, accessToken, userID, siteUrl;
+var emails = [];
 
 chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
   siteUrl = tabs[0].url;
 });
+
+function isValidEmailAddress(emailAddress) {
+  var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+  return pattern.test(emailAddress);
+};
+
+function addEmailToken(emailAddress) {
+  emails.push(emailAddress);
+  $('#search').before('<li class="token" id="' + emailAddress + '"><div>' + emailAddress + ' <a class="closer email-closer">&times;</a></div></li>' );
+  $('#field').val('');
+  filter('#field');
+};
+
+function pad (str, max) {
+  str = str.toString();
+  return str.length < max ? pad("0" + str, max) : str;
+}
 
 
 
@@ -12,13 +30,13 @@ chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
 
 // Send tip
 
-function sendTip(link, id, recid, callback) {
+function sendTip(link, id, recIds, recEmails, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("POST", "http://www.tipster.to/api/tips", true);
   xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.onload = requestComplete;
-  xhr.send('{"link":"'+link+'", "user_id":"'+id+'", "recipient_ids":"'+recid+'"}');
+  xhr.send('{"link":"'+link+'", "user_id":"'+id+'", "recipient_ids":"'+recIds+'", "emails":"'+recEmails+'"}');
 
   function requestComplete() {
     if (this.status == 401 && retry) {
@@ -65,15 +83,27 @@ function filter(element) {
 // Actions on ready
 
 $(document).ready(function () {
-  $("#field").keyup(function () {
-    filter(this)
+  $("#field").keyup(function (e) {
+    filter(this);
+
+    var address = $(this).val().slice(0,-1);
+    if((e.keyCode == 32 || e.keyCode == 188) && isValidEmailAddress(address)){
+      addEmailToken(address)
+    }
+  });
+
+  $("#field").blur(function () {
+    var address = $(this).val().trim();
+    if(isValidEmailAddress(address)){
+      addEmailToken(address)
+    }
   });
 
   $( '#taggable' ).click(function() {
     $("#field").focus()
   });
 
-  $("#taggable").on( 'click', '.closer', function() {
+  $("#taggable").on( 'click', '.friend-closer', function() {
     var token = $(this).parent().parent()
     var tokenId = token.attr('id')
     token.remove();
@@ -81,6 +111,16 @@ $(document).ready(function () {
     var index = recipients.indexOf(tokenId);
     if (index > -1) {
         recipients.splice(index, 1);
+    };
+  });
+
+  $("#taggable").on( 'click', '.email-closer', function() {
+    var token = $(this).parent().parent()
+    var tokenAddress = token.attr('id')
+    token.remove();
+    var index = emails.indexOf(tokenAddress);
+    if (index > -1) {
+        emails.splice(index, 1);
     };
   });
 
@@ -212,7 +252,7 @@ var userLoader = (function() {
           // Add recipient to hash
           recipients.push(this.id);
           // Add token
-          $('#search').before('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer">&times;</a></div></li>' );
+          $('#search').before('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer friend-closer">&times;</a></div></li>' );
           $('#field').val('');
           filter('#field');
         } else {
@@ -232,7 +272,8 @@ var userLoader = (function() {
       $( '#send_button' ).click(function() {
         sendTip(siteUrl,
           userID,
-          recipients.join(","));
+          recipients.join(","),
+          emails.join(","));
         this.innerHTML = 'Sending<span>...</span>';
       });
     }
@@ -251,13 +292,6 @@ var userLoader = (function() {
   }
 
 
-
-  // Misc useful functions
-  function pad (str, max) {
-    str = str.toString();
-    return str.length < max ? pad("0" + str, max) : str;
-  }
-
   function loadSpinner() {
     var opts = {
       lines: 11, // The number of lines to draw
@@ -273,7 +307,7 @@ var userLoader = (function() {
     spinner = new Spinner(opts).spin(target);
   }
 
-  // Event handlers
+
   return {
     onload: function () {
       loadSpinner();
