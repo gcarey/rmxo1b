@@ -89,13 +89,13 @@ ul#taggable {
 		margin-right: 3px
 	}
 
-	.closer {
+	#taggable .closer {
 		color: #acacac;
 		position: relative;
 		z-index: 10;
 	}
 
-	.closer:hover {
+	#taggable .closer:hover {
 		color: #8c8c8c;
 	}
 
@@ -116,6 +116,42 @@ ul#taggable {
 	  overflow: visible;
 	  min-width:155px;
 	}
+
+#pro_tip {
+	position: relative;
+	font-size: 12px;
+	width: 383px;
+	display: none;
+}
+
+#pro_tip .content {
+	margin: 0;
+	background-color: white;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	margin: 0 0 10px 15px;
+	padding: 5px 10px 5px 50px;
+	font-size: 12px;
+	text-align: left;
+}
+
+#pro_tip .label {
+	position:absolute;
+	top: 1px;
+	left: 0;
+	background-color: #000cac;
+	color: white;
+	border: 1px solid #ddd;
+	padding: 0 5px 2px;
+}
+
+#pro_tip img {
+	position: absolute;
+	top:-5px;
+	right:-5px;
+	cursor: pointer;
+}
+
 
 
 #friend_list {

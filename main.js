@@ -1,6 +1,7 @@
 // Shared variables, functions
 
 var userInfo, accessToken, userID, siteUrl;
+var recipients = []
 var emails = [];
 
 chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function(tabs) {
@@ -14,7 +15,7 @@ function isValidEmailAddress(emailAddress) {
 
 function addEmailToken(emailAddress) {
   emails.push(emailAddress);
-  $('#search').before('<li class="token" id="' + emailAddress + '"><div>' + emailAddress + ' <a class="closer email-closer">&times;</a></div></li>' );
+  $('#search').before('<li class="token" id="' + emailAddress + '"><div>' + emailAddress + ' <a class="closer email_closer">&times;</a></div></li>' );
   $('#field').val('');
   filter('#field');
 };
@@ -90,6 +91,19 @@ $(document).ready(function () {
     if((e.keyCode == 32 || e.keyCode == 188) && isValidEmailAddress(address)){
       addEmailToken(address)
     }
+
+    if(e.keyCode == 13){
+      if (isValidEmailAddress(address)) { 
+        addEmailToken(address) 
+      };
+
+      sendTip(siteUrl,
+        userID,
+        recipients.join(","),
+        emails.join(","));
+
+      $('#send_button').html('Sending<span>...</span>');
+    }
   });
 
   $("#field").blur(function () {
@@ -103,25 +117,22 @@ $(document).ready(function () {
     $("#field").focus()
   });
 
-  $("#taggable").on( 'click', '.friend-closer', function() {
+  $("#taggable").on( 'click', '.closer', function() {
     var token = $(this).parent().parent()
     var tokenId = token.attr('id')
     token.remove();
-    $("a#"+tokenId).removeClass('selected');
-    var index = recipients.indexOf(tokenId);
-    if (index > -1) {
-        recipients.splice(index, 1);
-    };
-  });
-
-  $("#taggable").on( 'click', '.email-closer', function() {
-    var token = $(this).parent().parent()
-    var tokenAddress = token.attr('id')
-    token.remove();
-    var index = emails.indexOf(tokenAddress);
-    if (index > -1) {
-        emails.splice(index, 1);
-    };
+    if ($(this).hasClass('friend_closer')) {
+      $("a#"+tokenId).removeClass('selected');
+      var index = recipients.indexOf(tokenId);
+      if (index > -1) {
+          recipients.splice(index, 1);
+      };
+    } else if ($(this).hasClass('email_closer')) {
+      var index = emails.indexOf(tokenAddress);
+      if (index > -1) {
+          emails.splice(index, 1);
+      };
+    }
   });
 
   $("#menubar").on( 'click', '.tip-alert', function() {
@@ -224,8 +235,6 @@ var userLoader = (function() {
 
 
     function listFriends() {
-      var recipients = []
-
       // Removed elements
       spinner.stop();
 
@@ -239,8 +248,15 @@ var userLoader = (function() {
               $('#friend_list').append('<a class="' + userInfo.friends[i].fullName + ' friend_thumb ' + userInfo.friends[i].email + '" id="' + userInfo.friends[i].id + '"><img src="img/missing.png" width="85" height="85" alt="' + userInfo.friends[i].fullName + '" title="' + userInfo.friends[i].fullName + '" /></a>' );
             }
       };
+
       $('#taggable,#actions').show();
       $("#field").focus()
+
+      chrome.storage.local.get('proTip', function (result) {
+        if (result.proTip != "seen") {
+          $('#pro_tip').show();
+        }
+      });
 
       // Click handlers on new elements
       $( '.friend_thumb' ).click(function() {
@@ -252,7 +268,7 @@ var userLoader = (function() {
           // Add recipient to hash
           recipients.push(this.id);
           // Add token
-          $('#search').before('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer friend-closer">&times;</a></div></li>' );
+          $('#search').before('<li class="token" id="' + this.id + '"><div>' + recName + ' <a class="closer friend_closer">&times;</a></div></li>' );
           $('#field').val('');
           filter('#field');
         } else {
@@ -275,6 +291,26 @@ var userLoader = (function() {
           recipients.join(","),
           emails.join(","));
         this.innerHTML = 'Sending<span>...</span>';
+      });
+
+      $("#field").keyup(function (e) {
+        if(e.keyCode == 13){
+          if (isValidEmailAddress(address)) { 
+            addEmailToken(address) 
+          };
+
+          sendTip(siteUrl,
+            userID,
+            recipients.join(","),
+            emails.join(","));
+          
+          $('#send_button').innerHTML = 'Sending<span>...</span>';
+        }
+      });
+
+      $( '.close_button' ).click(function() {
+        $(this).parent().remove();
+          chrome.storage.local.set({'proTip': 'seen'}, null);
       });
     }
 
